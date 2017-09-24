@@ -1,0 +1,34 @@
+<select id="lang">
+    <option selected value="en">en</option>
+    <option value="ru">ru</option>
+</select>
+<button id="send">Display table</button>
+<div class="table">
+    <div class="row">
+        <div class="title">Город</div>
+        <div class="title_image">Посещения</div>
+        <div class="body">Страниц</div>
+        <div class="url">Время</div>
+    </div>
+    <div class="row">
+        <div class="title">Город</div>
+        <div class="title_image">Посещения</div>
+        <div class="body">Страниц</div>
+        <div class="url">Время</div>
+    </div>
+    <script>
+        $( "#send" ).click(function() {
+            var lang = $("select#lang").val();
+            var url = 'louder.php?lang='+lang;
+            var items = [];
+            $.getJSON( url, function( data ) {
+                $.each( data, function( key, val ) {
+                    items.push( "<div class='" + key + "'>" + val + "</div>" );
+                });
+                $( items.join( "" )
+                ).appendTo( "div.table" );
+            });
+
+        });
+    </script>
+</div>

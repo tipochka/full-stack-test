@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Articles</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        updateArticles();
+        function mOver(id) {
+            if ($("#eye"+id).css("display") == "none") {
+                $("#eye"+id).css("display", "block");
+            }else{
+                $("#eye"+id).css("display", "none");
+            }
+
+        }
+
+        function setStatus(id, state) {
+
+            var lang = $("select#lang option:selected").val();
+
+
+            $.post('json.setState.php', {pid: id, state: state, lang: lang}).done(function (data) {
+                updateArticles();
+            })
+        }
+
+        function updateArticles(){
+            $("#articles").empty();
+            var lang = $("select#lang option:selected").val();
+            if(lang != 'ru') {
+                lang = 'en';
+            }
+            var url = 'json.louder.php?lang='+lang;
+            var items = [];
+            var text;
+            $.getJSON( url, function( data ) {
+                $.each( data, function( id, row ) {
+                    text ='<div class="tableRow">';
+                    text+= '<div class="tableCell cellCenter">'+id+'</div>';
+                    text+= '<div class="tableCell cellCenter"><img src="'+row.img+'"></div>';
+                    text+= '<div class="tableCell">'+row.title+' <a href=".'+row.url+'" class="more">Read more..</a></div>';
+                    text+= '<div class="tableCell cellCenter"><img src="images/flags/'+row.lang+'.gif"></div>';
+                    text+= '<div class="tableCell cellCenter"><img onclick="mOver(this.id)" id = "'+row.pid+'" src="images/icons/';
+                    if (row.status == 0){
+                        text += 'eye-green.gif">';
+                        text += '<div id="eye'+row.pid+'" style="display: none; width: 100%">';
+                        text += '<img onclick="setStatus('+row.pid+', 1)" src="images/icons/eye-yellow.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 2)" src="images/icons/eye-red.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 3)" src="images/icons/eye-gray.gif">';
+                    } else if(row.status == 1){
+                        text += 'eye-yellow.gif">';
+                        text += '<div id="eye'+row.pid+'" style="display: none; width: 100%">';
+                        text += '<img onclick="setStatus('+row.pid+', 0)" src="images/icons/eye-green.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 2)" src="images/icons/eye-red.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 3)" src="images/icons/eye-gray.gif">';
+
+                    }else if(row.status == 2){
+                        text += 'eye-red.gif">';
+                        text += '<div id="eye'+row.pid+'" style="display: none; width: 100%">';
+                        text += '<img onclick="setStatus('+row.pid+', 0)" src="images/icons/eye-green.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 1)" src="images/icons/eye-yellow.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 3)" src="images/icons/eye-gray.gif">';
+                    }else {
+                        text += 'eye-gray.gif">';
+                        text += '<div id="eye'+row.pid+'" style="display: none; width: 100%">';
+                        text += '<img onclick="setStatus('+row.pid+', 0)" src="images/icons/eye-green.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 1)" src="images/icons/eye-yellow.gif">';
+                        text += '<img onclick="setStatus('+row.pid+', 2)" src="images/icons/eye-red.gif">';
+                    }
+                    text += '</div></div>';
+                    text += '</div>';
+                    items.push(text);
+                });
+                $("#articles").append(items);
+            });
+
+        }
+    </script>
+    <link rel="stylesheet" href="css/table.css">
+</head>
+<body>
+<div style=" border: 1px solid #000; padding: 2px">
+    <div style="float: right; margin: 2px">
+        <select id="lang">
+            <option selected>-Language-</option>
+            <option value="en">English</option>
+            <option value="ru">Russian</option>
+        </select>
+    </div>
+    <div class="table">
+        <div class="tableHeading">
+            <div class="tableHeadRow">
+                <div class="tableHead">ID</div>
+                <div class="tableHead">Image</div>
+                <div class="tableHead">Title</div>
+                <div class="tableHead">Language</div>
+                <div class="tableHead">Status</div>
+            </div>
+        </div>
+        <div class="tableBody" id="articles">
+        </div>
+    </div>
+</div>
+<script>$("#lang").change(function () {
+    updateArticles();
+});</script>
+</body>
+</html>
